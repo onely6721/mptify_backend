@@ -18,6 +18,8 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 
+.docker/mongo/data/*
+
 # IDEs and editors
 /.idea
 .project
@@ -33,3 +35,5 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+.env
