@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { TrackModule } from './track/track.module';
+import { PlaylistModule } from './playlist/playlist.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, TrackModule, PlaylistModule, PaymentModule],
   controllers: [],
   providers: [],
 })

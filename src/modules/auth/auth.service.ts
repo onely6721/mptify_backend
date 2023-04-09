@@ -2,9 +2,12 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repositories } from '../../models/db.repositories';
+import * as bcrypt from 'bcryptjs';
+import { User } from '../../models/user/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -17,42 +20,38 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async signIn(user) {
-    if (!user) {
-      throw new BadRequestException('Unauthenticated');
-    }
+  async register(username: string, password: string): Promise<User> {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const userExists = await this.findUserByEmail(user.email);
-
-    if (!userExists) {
-      return this.registerUser(user);
-    }
-
-    return this.generateJwt({
-      sub: userExists.id,
-      email: userExists.email,
+    return this.repositories.user.create({
+      email: username,
+      firstName: username,
+      passwordHash: hashedPassword,
     });
   }
 
-  async registerUser(user) {
-    try {
-      return await this.repositories.user.create(user);
-    } catch {
-      throw new InternalServerErrorException();
-    }
-  }
+  async login(username: string, password: string): Promise<string> {
+    // Find the user by username
+    const user = await this.repositories.user.findOne({ email: username });
 
-  async findUserById(id) {
-    return await this.repositories.user.findById(id);
-  }
-
-  async findUserByEmail(email) {
-    const user = await this.repositories.user.findOne({ email });
-
+    // If the user is not found, throw an error
     if (!user) {
-      return null;
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    return user;
+    // Compare the provided password with the stored password hash
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+
+    // If the password doesn't match, throw an error
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Generate a JWT token with the user ID as the payload
+    const payload = { sub: user.id };
+    const token = this.generateJwt(payload);
+
+    // Return the token as the response
+    return token;
   }
 }

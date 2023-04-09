@@ -1,23 +1,52 @@
-import { Entity, ObjectIdColumn, Column } from 'typeorm';
-import { ObjectID } from 'mongodb';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
+import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
+import { BasicSchema } from '../abstract/basic.schema';
+import { User } from '../user/user.schema';
 
-@Entity()
-export class Track {
-  @ObjectIdColumn()
-  id: ObjectID;
+type T_TrackDocument = Track & Document;
+@Exclude()
+@Schema({
+  timestamps: true,
+  collection: 'tracks',
+  toObject: {
+    virtuals: true,
+  },
+  toJSON: {
+    virtuals: true,
+    transform: (doc, res) => {
+      return plainToInstance(Track, res);
+    },
+  },
+})
+class Track extends BasicSchema {
+  @Expose()
+  @Prop()
+  title!: string;
 
-  @Column()
-  title: string;
+  @Expose()
+  @Prop()
+  artist?: string;
 
-  @Column()
-  artist: string;
+  @Expose()
+  @Prop()
+  cover?: string;
 
-  @Column()
-  album: string;
+  @Expose()
+  @Prop()
+  audio?: string;
 
-  @Column()
-  genre: string;
-
-  @Column()
-  duration: number;
+  @Expose()
+  @Type(() => String)
+  @Prop({
+    required: false,
+    index: 1,
+    type: SchemaTypes.ObjectId,
+    ref: User.name,
+  })
+  userId?: Types.ObjectId;
 }
+
+const TrackSchema = SchemaFactory.createForClass(Track);
+
+export { TrackSchema, Track, T_TrackDocument };

@@ -7,6 +7,7 @@ type T_UserDocument = User & Document;
 @Exclude()
 @Schema({
   timestamps: true,
+  collection: 'users',
   toObject: {
     virtuals: true,
   },

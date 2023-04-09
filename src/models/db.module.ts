@@ -1,7 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import mongooseIdValidator from 'mongoose-id-validator';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import mongooseAutopopulate from 'mongoose-autopopulate';
@@ -10,6 +9,10 @@ import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User, UserSchema } from './user/user.schema';
 import { UserRepository } from './user/user.repository';
 import { Repositories } from './db.repositories';
+import { TrackRepository } from './track/track.repository';
+import { Track, TrackSchema } from './track/track.schema';
+import { Playlist, PlaylistSchema } from './playlist/playlist.schema';
+import { PlaylistRepository } from './playlist/playlist.repository';
 
 @Global()
 @Module({
@@ -30,10 +33,19 @@ import { Repositories } from './db.repositories';
         // },
       }),
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Track.name, schema: TrackSchema },
+      { name: Playlist.name, schema: PlaylistSchema },
+    ]),
   ],
   controllers: [],
-  providers: [UserRepository, Repositories],
+  providers: [
+    UserRepository,
+    TrackRepository,
+    PlaylistRepository,
+    Repositories,
+  ],
   exports: [Repositories],
 })
 export class DbModule {
