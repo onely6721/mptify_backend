@@ -44,10 +44,10 @@ class User extends BasicSchema {
   verified?: boolean;
 
   @Expose()
-  isAdmin!: boolean;
+  isAdmin?: boolean;
 
   @Expose()
-  isSubscribed!: boolean;
+  isSubscribed?: boolean;
 }
 
 const UserSchema = SchemaFactory.createForClass(User);

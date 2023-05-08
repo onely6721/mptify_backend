@@ -12,8 +12,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
-    console.log(authHeader);
     const authToken = request.cookies['auth-token'];
+    console.log(authToken);
 
     if (authHeader) {
       // Authorization header takes precedence over cookie
@@ -27,7 +27,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user, info) {
-    console.log(user);
     if (err || !user) {
       throw new UnauthorizedException('Invalid token');
     }

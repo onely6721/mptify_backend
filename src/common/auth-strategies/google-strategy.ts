@@ -16,6 +16,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       scope: ['profile', 'email'],
     });
   }
+  async getAuthorizationUrl() {
+    const options = {
+      client_id: this.configService.get<string>('GOOGLE_CLIENT_ID'),
+      response_type: 'code',
+      redirect_uri: this.configService.get<string>('GOOGLE_AUTH_CALLBACK'),
+      scope: ['profile email'].join(' '),
+    };
+    return this._oauth2.getAuthorizeUrl(options);
+  }
 
   async validate(
     accessToken: string,

@@ -54,4 +54,24 @@ export class AuthService {
     // Return the token as the response
     return token;
   }
+
+  async loginWithGoogle(email: string, firstName: string): Promise<string> {
+    const user = await this.repositories.user.findOne({ email });
+    let payload;
+    if (!user) {
+      const randomPassword = '22'; // will change later
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      const createdUser = await this.repositories.user.create({
+        passwordHash: hashedPassword,
+        email: email,
+        firstName: firstName,
+      });
+      payload = { sub: createdUser.id };
+    } else {
+      payload = { sub: user.id };
+    }
+
+    const token = this.generateJwt(payload);
+    return token;
+  }
 }

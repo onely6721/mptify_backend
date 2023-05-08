@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
 import { User } from '../../models/user/user.schema';
 
-@Controller('track')
+@Controller('tracks')
 export class TrackController {
   constructor(
     private readonly trackService: TrackService,
@@ -30,6 +30,12 @@ export class TrackController {
     return this.repositories.track.findMany();
   }
 
+  @Get('')
+  @UseGuards(JwtAuthGuard)
+  getMyTracks(@CurrentUser() user: User) {
+    return this.repositories.track.findMany({ userId: user.id });
+  }
+
   @Get(':id')
   getTrackById(@Param('id') id: string) {
     return this.repositories.track.findById(id);
@@ -37,7 +43,6 @@ export class TrackController {
 
   @Post('')
   async createTrack(@Body() body: CreateTrackBodyDto) {
-    console.log(body);
     return await this.repositories.track.create(body);
   }
 
