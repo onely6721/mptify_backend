@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Post,
+  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -42,7 +44,13 @@ export class TrackController {
   }
 
   @Post('')
-  async createTrack(@Body() body: CreateTrackBodyDto) {
+  @UseGuards(JwtAuthGuard)
+  async createTrack(@CurrentUser() user, @Body() body: CreateTrackBodyDto) {
+    if (!user.isVerifiedArtist) {
+      throw new UnauthorizedException(
+        'You do not have permission to perform this action.',
+      );
+    }
     return await this.repositories.track.create(body);
   }
 

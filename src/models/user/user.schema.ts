@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { Exclude, Expose, plainToInstance } from 'class-transformer';
+import { Document, SchemaTypes } from 'mongoose';
+import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
 import { BasicSchema } from '../abstract/basic.schema';
+import { ValidateNested } from 'class-validator';
+import { Package } from '../package/package.schema';
+import { PackageSubscription } from './nested/subscription.schema';
 
 type T_UserDocument = User & Document;
 @Exclude()
@@ -44,7 +47,27 @@ class User extends BasicSchema {
   verified?: boolean;
 
   @Expose()
-  isAdmin?: boolean;
+  @ValidateNested()
+  @Type(() => PackageSubscription)
+  @Prop({ type: PackageSubscription })
+  subscription?: PackageSubscription;
+
+  @Expose()
+  @Type(() => Package)
+  subscriptionPackage?: Package;
+
+  @Expose()
+  @Prop({ default: false })
+  isVerifiedArtist!: boolean;
+
+  @Expose()
+  @Type(() => Date)
+  @Prop({ type: SchemaTypes.Date, default: Date.now, index: 1 })
+  lastListenedSong?: Date;
+
+  @Expose()
+  @Prop({ default: false })
+  isAdmin!: boolean;
 
   @Expose()
   isSubscribed?: boolean;

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user/user.repository';
 import { TrackRepository } from './track/track.repository';
 import { PlaylistRepository } from './playlist/playlist.repository';
+import { PackageRepository } from './package/package.repository';
 
 @Injectable()
 export class Repositories {
@@ -9,9 +10,11 @@ export class Repositories {
     readonly user: UserRepository,
     readonly track: TrackRepository,
     readonly playlist: PlaylistRepository,
+    readonly packages: PackageRepository,
   ) {
     user.setRoot(this);
     track.setRoot(this);
     playlist.setRoot(this);
+    packages.setRoot(this);
   }
 }

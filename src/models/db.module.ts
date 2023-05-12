@@ -1,11 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import mongooseIdValidator from 'mongoose-id-validator';
-import mongoosePaginate from 'mongoose-paginate-v2';
-import mongooseAutopopulate from 'mongoose-autopopulate';
-import mongooseLeanGetters from 'mongoose-lean-getters';
-import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User, UserSchema } from './user/user.schema';
 import { UserRepository } from './user/user.repository';
 import { Repositories } from './db.repositories';
@@ -13,6 +8,8 @@ import { TrackRepository } from './track/track.repository';
 import { Track, TrackSchema } from './track/track.schema';
 import { Playlist, PlaylistSchema } from './playlist/playlist.schema';
 import { PlaylistRepository } from './playlist/playlist.repository';
+import { Package, PackageSchema } from './package/package.schema';
+import { PackageRepository } from './package/package.repository';
 
 @Global()
 @Module({
@@ -37,6 +34,7 @@ import { PlaylistRepository } from './playlist/playlist.repository';
       { name: User.name, schema: UserSchema },
       { name: Track.name, schema: TrackSchema },
       { name: Playlist.name, schema: PlaylistSchema },
+      { name: Package.name, schema: PackageSchema },
     ]),
   ],
   controllers: [],
@@ -44,6 +42,7 @@ import { PlaylistRepository } from './playlist/playlist.repository';
     UserRepository,
     TrackRepository,
     PlaylistRepository,
+    PackageRepository,
     Repositories,
   ],
   exports: [Repositories],

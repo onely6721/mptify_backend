@@ -37,6 +37,10 @@ class Track extends BasicSchema {
   audio?: string;
 
   @Expose()
+  @Prop()
+  listens?: number;
+
+  @Expose()
   @Type(() => String)
   @Prop({
     required: false,
