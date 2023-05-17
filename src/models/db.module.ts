@@ -10,6 +10,8 @@ import { Playlist, PlaylistSchema } from './playlist/playlist.schema';
 import { PlaylistRepository } from './playlist/playlist.repository';
 import { Package, PackageSchema } from './package/package.schema';
 import { PackageRepository } from './package/package.repository';
+import { AlbumRepository } from './album/album.repository';
+import { Album, AlbumSchema } from './album/album.schema';
 
 @Global()
 @Module({
@@ -35,6 +37,7 @@ import { PackageRepository } from './package/package.repository';
       { name: Track.name, schema: TrackSchema },
       { name: Playlist.name, schema: PlaylistSchema },
       { name: Package.name, schema: PackageSchema },
+      { name: Album.name, schema: AlbumSchema },
     ]),
   ],
   controllers: [],
@@ -43,6 +46,7 @@ import { PackageRepository } from './package/package.repository';
     TrackRepository,
     PlaylistRepository,
     PackageRepository,
+    AlbumRepository,
     Repositories,
   ],
   exports: [Repositories],

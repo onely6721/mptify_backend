@@ -84,6 +84,10 @@ class PackageSubscription {
 
   @Expose()
   @Prop()
+  rank?: string;
+
+  @Expose()
+  @Prop()
   updateUrl?: string;
 
   @Expose()

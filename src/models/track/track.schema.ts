@@ -3,6 +3,7 @@ import { Document, SchemaTypes, Types } from 'mongoose';
 import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
 import { BasicSchema } from '../abstract/basic.schema';
 import { User } from '../user/user.schema';
+import { TrackGenreEnum } from './track.types';
 
 type T_TrackDocument = Track & Document;
 @Exclude()
@@ -35,6 +36,10 @@ class Track extends BasicSchema {
   @Expose()
   @Prop()
   audio?: string;
+
+  @Expose()
+  @Prop({ type: String, enum: TrackGenreEnum, default: TrackGenreEnum.ANOTHER })
+  genre!: TrackGenreEnum;
 
   @Expose()
   @Prop()

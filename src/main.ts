@@ -22,8 +22,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.use(passport.initialize());
   passport.use(new JwtStrategy(configService, app.get(Repositories)));
-  console.log(configService.get('AWS_ACCESS_KEY_ID'));
-  console.log(configService.get('AWS_SECRET_ACCESS_KEY'));
   config.update({
     credentials: {
       accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),

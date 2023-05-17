@@ -41,6 +41,11 @@ class Package extends BasicSchema {
   planBillingPeriod!: number;
 
   @Expose()
+  @IsNumber()
+  @Prop({ required: true, default: 1 })
+  rank!: number;
+
+  @Expose()
   @Prop()
   displayName?: string;
 
