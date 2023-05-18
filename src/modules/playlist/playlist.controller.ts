@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
@@ -17,6 +18,8 @@ import { Repositories } from '../../models/db.repositories';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
 import { CreatePlaylistDto } from './dto/playlist.dto';
 import { User } from '../../models/user/user.schema';
+import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
+import { Types } from 'mongoose';
 
 @Controller('playlist')
 export class PlaylistController {
@@ -27,24 +30,41 @@ export class PlaylistController {
   ) {}
 
   @Get('my')
+  @UseGuards(JwtAuthGuard)
   async getMyPlaylist(@CurrentUser() user) {
     return this.repositories.playlist.findMany({
       userId: user.id,
     });
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getPlaylist(@CurrentUser() user, @Param('id') id: string) {
+    const playlist = await this.repositories.playlist.findById(id);
+    if (!playlist) {
+      throw new NotFoundException('Playlist not found');
+    }
+
+    await playlist.populate('tracks');
+    return playlist;
+  }
+
   @Post('')
+  @UseGuards(JwtAuthGuard)
   async createPlaylist(@CurrentUser() user, @Body() body: CreatePlaylistDto) {
-    return this.repositories.playlist.create({ ...body, userId: user.id });
+    console.log(body);
+    return this.repositories.playlist.create(body);
   }
 
   @Post('cover')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadCoverImage(@UploadedFile() file: Express.Multer.File) {
     return this.filesService.uploadPublicFile(file.buffer, file.originalname);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async deletePlaylist(@Param('id') id: string, @CurrentUser() user: User) {
     const playlist = await this.repositories.playlist.findById(id);
     if (!playlist || playlist.userId.toString() !== user.id) {
@@ -55,6 +75,7 @@ export class PlaylistController {
   }
 
   @Post(':id/add-track/:trackId')
+  @UseGuards(JwtAuthGuard)
   async addTrack(
     @CurrentUser() user,
     @Param('id') id: string,
@@ -62,7 +83,7 @@ export class PlaylistController {
   ) {
     const playlist = await this.repositories.playlist.findById(id);
 
-    if (!playlist || playlist.userId !== user.id) {
+    if (!playlist || playlist.userId.toString() !== user.id) {
       throw new NotFoundException('Playlist does not exists');
     }
 
@@ -71,8 +92,31 @@ export class PlaylistController {
       throw new NotFoundException('Track does not exists');
     }
 
-    return this.repositories.playlist.updateById(id, {
-      $push: { tracksIds: trackId },
+    return await this.repositories.playlist.updateById(id, {
+      $push: { tracksIds: new Types.ObjectId(trackId) },
+    });
+  }
+
+  @Post(':id/delete-playlist/:trackId')
+  @UseGuards(JwtAuthGuard)
+  async deleteTrackFromPlaylist(
+    @CurrentUser() user,
+    @Param('id') id: string,
+    @Param('trackId') trackId: string,
+  ) {
+    const playlist = await this.repositories.playlist.findById(id);
+
+    if (!playlist || playlist.userId.toString() !== user.id) {
+      throw new NotFoundException('Album does not exists');
+    }
+
+    const track = await this.repositories.track.findById(trackId);
+    if (!track || track.userId.toString() !== user.id) {
+      throw new NotFoundException('Track does not exists');
+    }
+
+    return this.repositories.album.updateById(id, {
+      $pull: { tracksIds: trackId },
     });
   }
 }

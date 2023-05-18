@@ -33,7 +33,7 @@ class Album extends BasicSchema {
   @Expose()
   @Type(() => String)
   @Prop({ type: [SchemaTypes.ObjectId], ref: Track.name, default: [] })
-  trackIds!: Types.ObjectId[];
+  tracksIds!: Types.ObjectId[];
 
   @Expose()
   @Type(() => Track)
@@ -55,7 +55,7 @@ class Album extends BasicSchema {
   userId?: Types.ObjectId;
 }
 
-const AlbumSchema = SchemaFactory.createForClass(Track);
+const AlbumSchema = SchemaFactory.createForClass(Album);
 
 AlbumSchema.virtual('tracks', {
   ref: Track.name,

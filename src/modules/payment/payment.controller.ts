@@ -27,7 +27,6 @@ export class PaymentController {
     private readonly repositories: Repositories,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('packages')
   async getPackageList() {
     return this.repositories.packages.findMany();

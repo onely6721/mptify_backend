@@ -24,7 +24,7 @@ type T_PlaylistDocument = Playlist & Document;
 class Playlist extends BasicSchema {
   @Expose()
   @IsString()
-  title?: string;
+  title!: string;
 
   @Expose()
   @IsString()
@@ -33,7 +33,7 @@ class Playlist extends BasicSchema {
   @Expose()
   @Type(() => String)
   @Prop({ type: [SchemaTypes.ObjectId], ref: Track.name, default: [] })
-  trackIds!: Types.ObjectId[];
+  tracksIds!: Types.ObjectId[];
 
   @Expose()
   @Type(() => Track)
@@ -55,7 +55,7 @@ class Playlist extends BasicSchema {
   userId?: Types.ObjectId;
 }
 
-const PlaylistSchema = SchemaFactory.createForClass(Track);
+const PlaylistSchema = SchemaFactory.createForClass(Playlist);
 
 PlaylistSchema.virtual('tracks', {
   ref: Track.name,
