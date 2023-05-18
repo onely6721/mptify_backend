@@ -12,3 +12,7 @@ phases:
       - docker build -t $IMAGE_NAME .
       - docker tag $IMAGE_NAME $ECR_REPOSITORY:latest
       - docker push $ECR_REPOSITORY:latest
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
