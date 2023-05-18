@@ -8,8 +8,8 @@ phases:
   build:
     commands:
       - echo Building Docker images...
-      - docker-compose -f docker-compose.yml build
+      - docker-compose -f docker-compose-prod.yml build
   post_build:
     commands:
       - echo Pushing Docker images to DockerHub...
-      - docker-compose -f docker-compose.yml push
+      - docker-compose -f docker-compose-prod.yml push
