@@ -3,8 +3,14 @@ version: 0.2
 phases:
   install:
     commands:
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - echo "Performing manual install of compose cli"
+      - curl -L -o docker-linux-amd64.tar.gz https://github.com/docker/compose-cli/releases/download/v1.0.10/docker-linux-amd64.tar.gz
+      - tar xzf docker-linux-amd64.tar.gz
+      - chmod +x docker/docker
+      - ls -ltr
+      - docker/docker compose --help
+      - which docker
+      - ln -s $(which docker) /usr/local/bin/com.docker.cli
   pre_build:
     commands:
       - echo Logging in to DockerHub...
