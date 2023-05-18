@@ -10,9 +10,9 @@ phases:
   build:
     commands:
       - echo Building Docker images...
-      - sudo docker-compose -f docker-compose-prod.yml build
+      - docker-compose -f docker-compose-prod.yml build
 
   post_build:
     commands:
       - echo Pushing Docker images to DockerHub...
-      - sudo docker-compose -f docker-compose-prod.yml push
+      - docker-compose -f docker-compose-prod.yml push
