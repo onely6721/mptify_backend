@@ -13,8 +13,6 @@ services:
       - NODE_PORT=${NODE_PORT:-8000}
     volumes:
       - .:/usr/src/app
-    env_file:
-      - .env
     # Run a command against the development stage of the image
     command: npm run start:dev
     ports:
