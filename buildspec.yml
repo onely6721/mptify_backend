@@ -3,6 +3,10 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - echo Installing Docker Compose...
+      - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      - chmod +x /usr/local/bin/docker-compose
+      - docker-compose version
       - echo Logging in to DockerHub...
       - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
   build:
