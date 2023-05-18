@@ -2,6 +2,7 @@ FROM node:18-alpine As development
 
 # Create app directory
 WORKDIR /usr/src/app
+RUN chown -R node:node /usr/src/app
 
 # Copy application dependency manifests to the container image.
 COPY --chown=node:node package*.json ./
