@@ -52,7 +52,6 @@ export class PlaylistController {
   @Post('')
   @UseGuards(JwtAuthGuard)
   async createPlaylist(@CurrentUser() user, @Body() body: CreatePlaylistDto) {
-    console.log(body);
     return this.repositories.playlist.create(body);
   }
 
