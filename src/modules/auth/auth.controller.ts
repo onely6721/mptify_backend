@@ -16,11 +16,13 @@ import { GoogleStrategy } from '../../common/auth-strategies/google-strategy';
 import { Repositories } from '../../models/db.repositories';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
     private readonly repositories: Repositories,
     private readonly googleStrategy: GoogleStrategy,
   ) {}
@@ -57,6 +59,6 @@ export class AuthController {
       user.firstName,
     );
     res.cookie('auth-token', token, { httpOnly: true, secure: true });
-    return res.redirect('http://localhost:3000');
+    return res.redirect(this.configService.get('CLIENT_URL'));
   }
 }
