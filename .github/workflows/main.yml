@@ -35,7 +35,7 @@ jobs:
           docker build -t ${{ secrets.IMAGE_REPO_NAME }}:${{ steps.version.outputs.version }} .
           docker tag ${{ secrets.IMAGE_REPO_NAME }}:${{ steps.version.outputs.version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ steps.version.outputs.version }}
           echo Pushing the Docker image...
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ steps.version.outputs.version }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }}
 
       - name: Create Elastic Beanstalk Version 
         run: |
