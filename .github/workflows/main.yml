@@ -40,4 +40,4 @@ jobs:
       - name: Update Elastic Beanstalk environment
         run: |
           echo Updating Elastic Beanstalk environment...
-          aws elasticbeanstalk update-environment --application-name Chel --environment-name Chel-env --version-label ${{ steps.version.outputs.version }}
+          aws elasticbeanstalk update-environment --application-name Chel --environment-name Chel-env
