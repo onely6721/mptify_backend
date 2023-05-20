@@ -32,7 +32,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           echo Building the Docker image...
-          docker build -t ${{ secrets.IMAGE_REPO_NAME }}:${{ steps.version.outputs.version }} .
+          docker build -t ${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }}
           docker tag ${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }}
           echo Pushing the Docker image...
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }}
