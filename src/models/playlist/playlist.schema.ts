@@ -23,11 +23,11 @@ type T_PlaylistDocument = Playlist & Document;
 })
 class Playlist extends BasicSchema {
   @Expose()
-  @IsString()
+  @Prop()
   title!: string;
 
   @Expose()
-  @IsString()
+  @Prop()
   coverImage?: string;
 
   @Expose()

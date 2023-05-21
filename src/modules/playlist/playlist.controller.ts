@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -16,7 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { Repositories } from '../../models/db.repositories';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
-import { CreatePlaylistDto } from './dto/playlist.dto';
+import { CreatePlaylistDto, UpdatePlaylistDto } from './dto/playlist.dto';
 import { User } from '../../models/user/user.schema';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { Types } from 'mongoose';
@@ -52,14 +53,54 @@ export class PlaylistController {
   @Post('')
   @UseGuards(JwtAuthGuard)
   async createPlaylist(@CurrentUser() user, @Body() body: CreatePlaylistDto) {
-    return this.repositories.playlist.create(body);
+    let title = body.title;
+    if (!title) {
+      const playlists = await this.repositories.playlist.findMany({
+        userId: user.id,
+      });
+      title = `My Playlist #${playlists.length + 1}`;
+    }
+    return this.repositories.playlist.create({ title, userId: user.id });
   }
 
-  @Post('cover')
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async updatePlaylist(
+    @CurrentUser() user,
+    @Body() body: UpdatePlaylistDto,
+    @Param('id') id: string,
+  ) {
+    const playlist = await this.repositories.playlist.findById(id);
+
+    if (!playlist || playlist.userId.toString() !== user.id) {
+      throw new NotFoundException('Playlist does not exists');
+    }
+
+    return this.repositories.playlist.updateById(id, {
+      ...body,
+      userId: user.id,
+    });
+  }
+
+  @Post('upload-cover/:id')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadCoverImage(@UploadedFile() file: Express.Multer.File) {
-    return this.filesService.uploadPublicFile(file.buffer, file.originalname);
+  async uploadCoverImage(
+    @CurrentUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    const playlist = await this.repositories.playlist.findById(id);
+
+    if (!playlist || playlist.userId.toString() !== user.id) {
+      throw new NotFoundException('Playlist does not exists');
+    }
+
+    return this.playlistService.savePlaylistCover(
+      id,
+      file.buffer,
+      file.originalname,
+    );
   }
 
   @Delete(':id')

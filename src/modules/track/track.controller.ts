@@ -3,8 +3,10 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
+  Query,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -12,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { Repositories } from '../../models/db.repositories';
-import { CreateTrackBodyDto } from './dto/track.dto';
+import { CreateTrackBodyDto, TracksSearchQueryDto } from './dto/track.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
@@ -28,8 +30,21 @@ export class TrackController {
 
   @Get('')
   @UseGuards(JwtAuthGuard)
-  getAllTracks(@CurrentUser() user: User) {
-    return this.repositories.track.findMany();
+  getTracks(
+    @CurrentUser() user: User,
+    @Query() searchQuery: TracksSearchQueryDto,
+  ) {
+    const { limit, page, title } = searchQuery;
+
+    const filter = {};
+
+    if (title) {
+      filter['title'] = { $regex: new RegExp(title, 'i') };
+    } else {
+      return [];
+    }
+
+    return this.repositories.track.findMany(filter, { page, limit });
   }
 
   @Get('')
@@ -57,18 +72,31 @@ export class TrackController {
   @Post('upload-cover/:id')
   @UseInterceptors(FileInterceptor('file'))
   async uploadCoverImage(
+    @CurrentUser() user: User,
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
   ) {
+    const track = await this.repositories.track.findById(id);
+
+    if (!track || track.userId.toString() !== user.id) {
+      throw new NotFoundException('Track does not exists');
+    }
+
     return this.trackService.saveTrackCover(id, file.buffer, file.originalname);
   }
 
   @Post('upload-audio/:id')
   @UseInterceptors(FileInterceptor('file'))
   async uploadAudio(
+    @CurrentUser() user: User,
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
   ) {
+    const track = await this.repositories.track.findById(id);
+
+    if (!track || track.userId.toString() !== user.id) {
+      throw new NotFoundException('Track does not exists');
+    }
     return this.trackService.saveTrackAudio(id, file.buffer, file.originalname);
   }
 }

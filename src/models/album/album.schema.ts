@@ -23,11 +23,11 @@ type T_AlbumDocument = Album & Document;
 })
 class Album extends BasicSchema {
   @Expose()
-  @IsString()
+  @Prop()
   title?: string;
 
   @Expose()
-  @IsString()
+  @Prop()
   coverImage?: string;
 
   @Expose()
