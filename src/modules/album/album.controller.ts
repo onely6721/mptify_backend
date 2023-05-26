@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -22,6 +22,7 @@ import { CreatePlaylistDto } from './dto/album.dto';
 import { User } from '../../models/user/user.schema';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { Types } from 'mongoose';
+import { AlbumsSearchQueryDto } from './dto/albums.search.dto';
 
 @Controller('album')
 export class AlbumController {
@@ -30,6 +31,25 @@ export class AlbumController {
     private readonly repositories: Repositories,
     private readonly filesService: FilesService,
   ) {}
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  async searchAlbums(
+    @CurrentUser() user,
+    @Query() searchQuery: AlbumsSearchQueryDto,
+  ) {
+    const { limit, page, keyword } = searchQuery;
+
+    const filter = {};
+
+    if (keyword) {
+      filter['title'] = { $regex: new RegExp(keyword, 'i') };
+    } else {
+      return [];
+    }
+
+    return this.repositories.album.findMany({ ...filter }, { page, limit });
+  }
 
   @Get('my')
   @UseGuards(JwtAuthGuard)

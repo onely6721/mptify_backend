@@ -3,9 +3,11 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { TransformToObjectId } from '../../common/decorators/transform';
 import { Prop } from '@nestjs/mongoose';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 export abstract class BaseSchema {
   /** @deprecated Use id */
+  @ApiHideProperty()
   @Expose({ toClassOnly: true })
   @IsOptional()
   @TransformToObjectId()

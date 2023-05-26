@@ -9,6 +9,21 @@ export class TrackService {
     private readonly filesService: FilesService,
   ) {}
 
+  async searchTracks(query: string) {
+    const filter = {
+      $or: [
+        { title: { $regex: query, $options: 'i' } }, // Поиск по заголовку
+        { 'artist.name': { $regex: query, $options: 'i' } }, // Поиск по имени артиста
+        {
+          subArtists: {
+            $elemMatch: { name: { $regex: query, $options: 'i' } },
+          },
+        }, // Поиск по имени артиста в subArtistIds
+      ],
+    };
+
+    return this.repositories.track.findMany({}, {}, [{ path: 'userId' }]);
+  }
   async saveTrackCover(id: string, buffer: Buffer, filename: string) {
     const cover = await this.filesService.uploadPublicFile(buffer, filename);
     return await this.repositories.track.updateById(id, {

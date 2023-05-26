@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Post,
   Req,
   Res,
@@ -60,5 +59,11 @@ export class AuthController {
     );
     res.cookie('auth-token', token, { httpOnly: true, secure: true });
     return res.redirect(this.configService.get('CLIENT_URL'));
+  }
+
+  @Post('create-artist')
+  @UseGuards(JwtAuthGuard)
+  async createArtist(@CurrentUser() user, @Body() body) {
+    return this.repositories.user.create(body);
   }
 }

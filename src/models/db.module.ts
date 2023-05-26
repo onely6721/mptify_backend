@@ -12,6 +12,10 @@ import { Package, PackageSchema } from './package/package.schema';
 import { PackageRepository } from './package/package.repository';
 import { AlbumRepository } from './album/album.repository';
 import { Album, AlbumSchema } from './album/album.schema';
+import * as mongooseAutoPopulate from 'mongoose-autopopulate';
+import * as mongooseLeanVirtuals from 'mongoose-lean-virtuals';
+import { Listen, ListenSchema } from './listen/listen.schema';
+import { ListenRepository } from './listen/listen.repository';
 
 @Global()
 @Module({
@@ -21,15 +25,12 @@ import { Album, AlbumSchema } from './album/album.schema';
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('DB_URL'),
         autoIndex: false,
-        // connectionFactory: (connection: mongoose.Connection): any => {
-        //   connection.plugin(mongooseIdValidator, { connection });
-        //   connection.plugin(mongooseAutopopulate);
-        //   connection.plugin(mongoosePaginate);
-        //   connection.plugin(mongooseLeanGetters);
-        //   connection.plugin(mongooseLeanVirtuals);
-        //
-        //   return connection;
-        // },
+        connectionFactory: (connection: any): any => {
+          connection.plugin(mongooseAutoPopulate);
+          connection.plugin(mongooseLeanVirtuals);
+
+          return connection;
+        },
       }),
     }),
     MongooseModule.forFeature([
@@ -37,6 +38,7 @@ import { Album, AlbumSchema } from './album/album.schema';
       { name: Track.name, schema: TrackSchema },
       { name: Playlist.name, schema: PlaylistSchema },
       { name: Package.name, schema: PackageSchema },
+      { name: Listen.name, schema: ListenSchema },
       { name: Album.name, schema: AlbumSchema },
     ]),
   ],
@@ -47,6 +49,7 @@ import { Album, AlbumSchema } from './album/album.schema';
     PlaylistRepository,
     PackageRepository,
     AlbumRepository,
+    ListenRepository,
     Repositories,
   ],
   exports: [Repositories],

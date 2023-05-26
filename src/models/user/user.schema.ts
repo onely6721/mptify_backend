@@ -5,6 +5,7 @@ import { BasicSchema } from '../abstract/basic.schema';
 import { ValidateNested } from 'class-validator';
 import { Package } from '../package/package.schema';
 import { PackageSubscription } from './nested/subscription.schema';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 type T_UserDocument = User & Document;
 @Exclude()
@@ -30,7 +31,8 @@ class User extends BasicSchema {
   })
   email!: string;
 
-  @Expose({ toClassOnly: true })
+  @ApiHideProperty()
+  @Expose({ toPlainOnly: true })
   @Prop({ required: true })
   passwordHash!: string;
 
@@ -41,6 +43,14 @@ class User extends BasicSchema {
   @Expose()
   @Prop({ maxLength: 255 })
   lastName?: string;
+
+  @Expose()
+  @Prop({ maxLength: 255 })
+  artistName?: string;
+
+  @Expose()
+  @Prop()
+  avatar?: string;
 
   @Expose()
   @Prop({ default: false })
@@ -61,9 +71,13 @@ class User extends BasicSchema {
   isVerifiedArtist!: boolean;
 
   @Expose()
+  @Prop({ default: 0 })
+  listens!: number;
+
+  @Expose()
   @Type(() => Date)
   @Prop({ type: SchemaTypes.Date, default: Date.now, index: 1 })
-  lastListenedSong?: Date;
+  lastListenedSongDate?: Date;
 
   @Expose()
   @Prop({ default: false })

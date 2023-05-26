@@ -1,25 +1,10 @@
 import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateTrackBodyDto {
+export class AlbumsSearchQueryDto {
   @IsDefined()
   @IsString()
-  title!: string;
-
-  @IsOptional()
-  @IsString()
-  subArtistsIds?: string[];
-}
-
-export class TracksSearchQueryDto {
-  @IsDefined()
-  @IsString()
-  title!: string;
-
-  @IsOptional()
-  @IsString()
-  @Type(() => String)
-  genre?: string;
+  keyword!: string;
 
   @IsOptional()
   @IsNumber()

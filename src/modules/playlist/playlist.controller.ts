@@ -46,7 +46,6 @@ export class PlaylistController {
       throw new NotFoundException('Playlist not found');
     }
 
-    await playlist.populate('tracks');
     return playlist;
   }
 

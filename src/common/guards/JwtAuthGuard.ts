@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { Repositories } from '../../models/db.repositories';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -13,7 +12,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request: Request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
     const authToken = request.cookies['auth-token'];
-    console.log(authToken);
 
     if (authHeader) {
       // Authorization header takes precedence over cookie

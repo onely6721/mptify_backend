@@ -27,10 +27,6 @@ class Track extends BasicSchema {
 
   @Expose()
   @Prop()
-  artist?: string;
-
-  @Expose()
-  @Prop()
   cover?: string;
 
   @Expose()
@@ -46,6 +42,14 @@ class Track extends BasicSchema {
   listens?: number;
 
   @Expose()
+  @Type(() => User)
+  artist?: User;
+
+  @Expose()
+  @Type(() => User)
+  subArtists?: User[];
+
+  @Expose()
   @Type(() => String)
   @Prop({
     required: false,
@@ -54,8 +58,28 @@ class Track extends BasicSchema {
     ref: User.name,
   })
   userId?: Types.ObjectId;
+
+  @Expose()
+  @Type(() => String)
+  @Prop({ type: [SchemaTypes.ObjectId], ref: User.name, default: [] })
+  subArtistIds!: Types.ObjectId[];
 }
 
 const TrackSchema = SchemaFactory.createForClass(Track);
+
+TrackSchema.virtual('artist', {
+  ref: User.name,
+  localField: 'userId',
+  foreignField: '_id',
+  justOne: true,
+  autopopulate: true,
+});
+
+TrackSchema.virtual('subArtists', {
+  ref: User.name,
+  localField: 'subArtistIds',
+  foreignField: '_id',
+  autopopulate: true,
+});
 
 export { TrackSchema, Track, T_TrackDocument };

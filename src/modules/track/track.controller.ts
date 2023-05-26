@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Query,
-  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,6 +20,8 @@ import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
 import { User } from '../../models/user/user.schema';
 
+import { isAfter, addMinutes } from 'date-fns';
+
 @Controller('tracks')
 export class TrackController {
   constructor(
@@ -30,7 +31,7 @@ export class TrackController {
 
   @Get('')
   @UseGuards(JwtAuthGuard)
-  getTracks(
+  async getTracks(
     @CurrentUser() user: User,
     @Query() searchQuery: TracksSearchQueryDto,
   ) {
@@ -61,15 +62,16 @@ export class TrackController {
   @Post('')
   @UseGuards(JwtAuthGuard)
   async createTrack(@CurrentUser() user, @Body() body: CreateTrackBodyDto) {
-    if (!user.isVerifiedArtist) {
-      throw new UnauthorizedException(
-        'You do not have permission to perform this action.',
-      );
-    }
-    return await this.repositories.track.create(body);
+    // if (!user.isVerifiedArtist) {
+    //   throw new UnauthorizedException(
+    //     'You do not have permission to perform this action.',
+    //   );
+    // }
+    return await this.repositories.track.create({ ...body });
   }
 
   @Post('upload-cover/:id')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadCoverImage(
     @CurrentUser() user: User,
@@ -78,14 +80,15 @@ export class TrackController {
   ) {
     const track = await this.repositories.track.findById(id);
 
-    if (!track || track.userId.toString() !== user.id) {
-      throw new NotFoundException('Track does not exists');
-    }
+    // if (!track || track.userId.toString() !== user.id) {
+    //   throw new NotFoundException('Track does not exists');
+    // }
 
     return this.trackService.saveTrackCover(id, file.buffer, file.originalname);
   }
 
   @Post('upload-audio/:id')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadAudio(
     @CurrentUser() user: User,
@@ -94,9 +97,41 @@ export class TrackController {
   ) {
     const track = await this.repositories.track.findById(id);
 
-    if (!track || track.userId.toString() !== user.id) {
+    // if (!track || track.userId.toString() !== user.id) {
+    //   throw new NotFoundException('Track does not exists');
+    // }
+    return this.trackService.saveTrackAudio(id, file.buffer, file.originalname);
+  }
+
+  @Post('add-listen/:id')
+  @UseGuards(JwtAuthGuard)
+  async addListen(@CurrentUser() user: User, @Param('id') id: string) {
+    if (
+      user?.lastListenedSongDate &&
+      isAfter(addMinutes(user?.lastListenedSongDate, 1), new Date())
+    ) {
+      throw new BadRequestException('Bad query');
+    }
+
+    const track = await this.repositories.track.findById(id);
+
+    if (!track) {
       throw new NotFoundException('Track does not exists');
     }
-    return this.trackService.saveTrackAudio(id, file.buffer, file.originalname);
+
+    await this.repositories.user.updateById(user.id, {
+      lastListenedSongDate: new Date(),
+    });
+
+    await this.repositories.user.updateById(track.userId, {
+      $inc: { listens: 1 },
+    });
+
+    await this.repositories.listen.create({
+      userId: user.id,
+      trackId: track.id,
+    });
+
+    return this.repositories.track.updateById(id, { $inc: { listens: 1 } });
   }
 }
