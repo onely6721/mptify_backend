@@ -40,9 +40,9 @@ jobs:
       - name: Create Elastic Beanstalk Version 
         run: |
           echo Creating new application version...
-          aws elasticbeanstalk create-application-version --application-name Chel --version-label ${{ steps.version.outputs.version }} --source-bundle S3Bucket=elbdockerrun,S3Key=Dockerrun.aws.json
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.AWS_ELB_APP_NAME }} --version-label ${{ steps.version.outputs.version }} --source-bundle S3Bucket=elbdockerrun,S3Key=Dockerrun.aws.json
 
       - name: Update Elastic Beanstalk environment
         run: |
           echo Updating Elastic Beanstalk environment...
-          aws elasticbeanstalk update-environment --application-name Chel --environment-name Chel-env --version-label ${{ steps.version.outputs.version }}
+          aws elasticbeanstalk update-environment --application-name ${{ secrets.AWS_ELB_APP_NAME }} --environment-name ${{ secrets.AWS_ELB_ENV_NAME }} --version-label ${{ steps.version.outputs.version }}
