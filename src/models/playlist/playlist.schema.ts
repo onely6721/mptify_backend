@@ -27,7 +27,7 @@ class Playlist extends BasicSchema {
 
   @Expose()
   @Prop()
-  coverImage?: string;
+  cover: string;
 
   @Expose()
   @Type(() => String)

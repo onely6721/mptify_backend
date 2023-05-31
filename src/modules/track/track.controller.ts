@@ -2,11 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
   Post,
   Query,
+  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -62,12 +64,12 @@ export class TrackController {
   @Post('')
   @UseGuards(JwtAuthGuard)
   async createTrack(@CurrentUser() user, @Body() body: CreateTrackBodyDto) {
-    // if (!user.isVerifiedArtist) {
-    //   throw new UnauthorizedException(
-    //     'You do not have permission to perform this action.',
-    //   );
-    // }
-    return await this.repositories.track.create({ ...body });
+    if (!user.isVerifiedArtist) {
+      throw new UnauthorizedException(
+        'You do not have permission to perform this action.',
+      );
+    }
+    return await this.repositories.track.create({ ...body, userId: user.id });
   }
 
   @Post('upload-cover/:id')
@@ -133,5 +135,62 @@ export class TrackController {
     });
 
     return this.repositories.track.updateById(id, { $inc: { listens: 1 } });
+  }
+  @Delete('/delete/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteTrack(@CurrentUser() user: User, @Param('id') id: string) {
+    const track = await this.repositories.track.findById(id);
+
+    console.log(track.id, user.id);
+    if (!track || track.userId.toString() !== user.id.toString()) {
+      throw new NotFoundException('Track does not exists');
+    }
+
+    return this.repositories.track.deleteById(id);
+  }
+
+  @Post('add-like/:id')
+  @UseGuards(JwtAuthGuard)
+  async addLike(@CurrentUser() user: User, @Param('id') id: string) {
+    console.log(user);
+    const track = await this.repositories.track.findById(id);
+
+    if (
+      user?.likedTracksIds.some((id) => id.toString() === track?.id.toString())
+    ) {
+      throw new BadRequestException('You liked this track');
+    }
+
+    if (!track) {
+      throw new NotFoundException('Track does not exists');
+    }
+
+    await this.repositories.user.updateById(user.id, {
+      $push: { likedTracksIds: track.id },
+    });
+
+    return this.repositories.track.updateById(id, { $inc: { likes: 1 } });
+  }
+
+  @Post('remove-like/:id')
+  @UseGuards(JwtAuthGuard)
+  async removeLike(@CurrentUser() user: User, @Param('id') id: string) {
+    const track = await this.repositories.track.findById(id);
+
+    if (
+      !user?.likedTracksIds.some((id) => id.toString() === track?.id.toString())
+    ) {
+      throw new BadRequestException('You liked this track');
+    }
+
+    if (!track) {
+      throw new NotFoundException('Track does not exists');
+    }
+
+    await this.repositories.user.updateById(user.id, {
+      $pull: { likedTracksIds: track.id },
+    });
+
+    return this.repositories.track.updateById(id, { $inc: { likes: -1 } });
   }
 }

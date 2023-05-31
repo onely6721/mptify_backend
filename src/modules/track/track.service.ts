@@ -12,13 +12,13 @@ export class TrackService {
   async searchTracks(query: string) {
     const filter = {
       $or: [
-        { title: { $regex: query, $options: 'i' } }, // Поиск по заголовку
-        { 'artist.name': { $regex: query, $options: 'i' } }, // Поиск по имени артиста
+        { title: { $regex: query, $options: 'i' } },
+        { 'artist.name': { $regex: query, $options: 'i' } },
         {
           subArtists: {
             $elemMatch: { name: { $regex: query, $options: 'i' } },
           },
-        }, // Поиск по имени артиста в subArtistIds
+        },
       ],
     };
 

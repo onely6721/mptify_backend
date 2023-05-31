@@ -60,4 +60,17 @@ export class RecommendationsService {
 
     return { lastListensTracks, topGenres, topArtists };
   }
+
+  async getRecentListenedTracks(user: User, limitLastListensTracks = 7) {
+    const recentListenedTracks = await this.repositories.listen.findMany(
+      {
+        userId: user?.id,
+      },
+      { limit: limitLastListensTracks, sort: { listenedDate: -1 } },
+    );
+
+    return _.uniqBy(recentListenedTracks, (track) => `${track.trackId}`).map(
+      (listen) => listen.track,
+    );
+  }
 }

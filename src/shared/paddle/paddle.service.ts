@@ -47,7 +47,6 @@ export class PaddleService {
         switchMap((res) => {
           if (!res.data.success) {
             const err$ = of<string | null>(null);
-            console.log(res.data);
             return err$.pipe(
               catchError(() =>
                 throwError(

@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes, Types } from 'mongoose';
 import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
 import { BasicSchema } from '../abstract/basic.schema';
-import { IsString } from 'class-validator';
 import { User } from '../user/user.schema';
 import { Track } from '../track/track.schema';
 
@@ -28,7 +27,7 @@ class Album extends BasicSchema {
 
   @Expose()
   @Prop()
-  coverImage?: string;
+  cover?: string;
 
   @Expose()
   @Type(() => String)

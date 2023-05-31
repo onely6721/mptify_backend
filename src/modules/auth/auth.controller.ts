@@ -16,6 +16,7 @@ import { Repositories } from '../../models/db.repositories';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { ConfigService } from '@nestjs/config';
+import { HttpStatusCode } from 'axios';
 
 @Controller('auth')
 export class AuthController {
@@ -27,15 +28,16 @@ export class AuthController {
   ) {}
 
   @Get('google')
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async loginWithGoogle() {
     const url = await this.googleStrategy.getAuthorizationUrl();
     return { url };
   }
 
   @Post('login')
-  async login(@Body() body: LoginBodyDto) {
-    return this.authService.login(body.email, body.password);
+  async login(@Body() body: LoginBodyDto, @Res() res: Response) {
+    const token = await this.authService.login(body.email, body.password);
+    res.cookie('auth-token', token, { httpOnly: true, secure: true });
+    res.send(HttpStatusCode.Ok);
   }
 
   @Post('register')

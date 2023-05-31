@@ -27,7 +27,6 @@ export class PlaylistController {
   constructor(
     private readonly playlistService: PlaylistService,
     private readonly repositories: Repositories,
-    private readonly filesService: FilesService,
   ) {}
 
   @Get('my')
@@ -43,7 +42,7 @@ export class PlaylistController {
   async getPlaylist(@CurrentUser() user, @Param('id') id: string) {
     const playlist = await this.repositories.playlist.findById(id);
     if (!playlist) {
-      throw new NotFoundException('Playlist not found');
+      throw new NotFoundException('Album not found');
     }
 
     return playlist;
@@ -72,7 +71,7 @@ export class PlaylistController {
     const playlist = await this.repositories.playlist.findById(id);
 
     if (!playlist || playlist.userId.toString() !== user.id) {
-      throw new NotFoundException('Playlist does not exists');
+      throw new NotFoundException('Album does not exists');
     }
 
     return this.repositories.playlist.updateById(id, {
@@ -92,7 +91,7 @@ export class PlaylistController {
     const playlist = await this.repositories.playlist.findById(id);
 
     if (!playlist || playlist.userId.toString() !== user.id) {
-      throw new NotFoundException('Playlist does not exists');
+      throw new NotFoundException('Album does not exists');
     }
 
     return this.playlistService.savePlaylistCover(
@@ -107,7 +106,7 @@ export class PlaylistController {
   async deletePlaylist(@Param('id') id: string, @CurrentUser() user: User) {
     const playlist = await this.repositories.playlist.findById(id);
     if (!playlist || playlist.userId.toString() !== user.id) {
-      throw new NotFoundException('Playlist with this id not found');
+      throw new NotFoundException('Album with this id not found');
     }
 
     return this.repositories.playlist.deleteById(id);
@@ -123,7 +122,7 @@ export class PlaylistController {
     const playlist = await this.repositories.playlist.findById(id);
 
     if (!playlist || playlist.userId.toString() !== user.id) {
-      throw new NotFoundException('Playlist does not exists');
+      throw new NotFoundException('Album does not exists');
     }
 
     const track = await this.repositories.track.findById(trackId);

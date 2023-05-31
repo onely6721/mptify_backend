@@ -11,7 +11,6 @@ export class RecommendationsController {
   constructor(
     private readonly recommendationsService: RecommendationsService,
     private readonly repositories: Repositories,
-    private readonly filesService: FilesService,
   ) {}
 
   @Get('')
@@ -20,7 +19,7 @@ export class RecommendationsController {
     return this.recommendationsService.getRecommendations(user);
   }
 
-  @Get('popularArtists')
+  @Get('popular-artists')
   @UseGuards(JwtAuthGuard)
   async getPopularArtists(@CurrentUser() user: User) {
     return this.repositories.user.findMany(
@@ -29,12 +28,18 @@ export class RecommendationsController {
     );
   }
 
-  @Get('popularTracks')
+  @Get('popular-tracks')
   @UseGuards(JwtAuthGuard)
   async getPopularTracks(@CurrentUser() user: User) {
     return this.repositories.track.findMany(
       {},
       { sort: { listens: -1 }, limit: 7 },
     );
+  }
+
+  @Get('last-listens')
+  @UseGuards(JwtAuthGuard)
+  async getLastListensTracks(@CurrentUser() user: User) {
+    return this.recommendationsService.getRecentListenedTracks(user);
   }
 }

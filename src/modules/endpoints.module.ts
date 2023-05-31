@@ -5,6 +5,7 @@ import { PlaylistModule } from './playlist/playlist.module';
 import { PaymentModule } from './payment/payment.module';
 import { ArtistModule } from './artists/artist.module';
 import { RecommendationsModule } from './ recommendations/recommendations.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RecommendationsModule } from './ recommendations/recommendations.module
     PlaylistModule,
     PaymentModule,
     ArtistModule,
+    UserModule,
     RecommendationsModule,
   ],
   controllers: [],

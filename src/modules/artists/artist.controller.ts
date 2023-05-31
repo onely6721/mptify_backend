@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -45,6 +46,40 @@ export class ArtistController {
       { ...filter, isVerifiedArtist: true },
       { page, limit },
     );
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getArtistById(@CurrentUser() user: User, @Param('id') id: string) {
+    const matchedUser = await this.repositories.user.findById(id);
+
+    if (!matchedUser || !matchedUser?.isVerifiedArtist) {
+      throw new NotFoundException('Not found artist');
+    }
+
+    return {
+      id: matchedUser.id,
+      artistName: matchedUser?.artistName || matchedUser.firstName,
+      listens: matchedUser.listens,
+      avatar: matchedUser?.avatar,
+    };
+  }
+
+  @Get('media/:id')
+  @UseGuards(JwtAuthGuard)
+  async getMediaArtistById(@CurrentUser() user: User, @Param('id') id: string) {
+    const matchedAlbums = await this.repositories.album.findMany({
+      userId: id,
+    });
+
+    const matchedTracks = await this.repositories.track.findMany(
+      {
+        userId: id,
+      },
+      { sort: { listens: -1 } },
+    );
+
+    return { albums: matchedAlbums, tracks: matchedTracks };
   }
 
   @Post('upload-cover/:id')
