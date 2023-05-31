@@ -37,7 +37,7 @@ jobs:
           echo Pushing the Docker image...
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.IMAGE_REPO_NAME }}:${{ secrets.IMAGE_TAG }}
 
-      - name: Create Elastic Beanstalk Version
+      - name: Create Elastic Beanstalk Version 
         run: |
           echo Creating new application version...
           aws elasticbeanstalk create-application-version --application-name ${{ secrets.AWS_ELB_APP_NAME }} --version-label ${{ steps.version.outputs.version }} --source-bundle S3Bucket=elbdockerrun,S3Key=Dockerrun.aws.json
