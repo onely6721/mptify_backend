@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -27,6 +26,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user) {
     return user;
+  }
+
+  @Get('my-tracks')
+  @UseGuards(JwtAuthGuard)
+  async myTracks(@CurrentUser() user) {
+    return this.repositories.track.findMany({
+      userId: user.id,
+    });
   }
 
   @Post('upload-avatar/me')

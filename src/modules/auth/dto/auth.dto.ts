@@ -17,5 +17,9 @@ export class RegisterBodyDto {
 
   @IsDefined()
   @IsString()
+  firstName!: string;
+
+  @IsDefined()
+  @IsString()
   password!: string;
 }

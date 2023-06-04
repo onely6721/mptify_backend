@@ -18,7 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { Repositories } from '../../models/db.repositories';
 import { CurrentUser } from '../../common/decorators/auth/current-user';
-import { CreatePlaylistDto } from './dto/album.dto';
+import { CreateAlbumDto } from './dto/album.dto';
 import { User } from '../../models/user/user.schema';
 import { JwtAuthGuard } from '../../common/guards/JwtAuthGuard';
 import { Types } from 'mongoose';
@@ -27,7 +27,7 @@ import { AlbumsSearchQueryDto } from './dto/albums.search.dto';
 @Controller('album')
 export class AlbumController {
   constructor(
-    private readonly playlistService: AlbumService,
+    private readonly albumService: AlbumService,
     private readonly repositories: Repositories,
     private readonly filesService: FilesService,
   ) {}
@@ -71,9 +71,9 @@ export class AlbumController {
     return album;
   }
 
-  @Post('')
+  @Post('create-album')
   @UseGuards(JwtAuthGuard)
-  async createAlbum(@CurrentUser() user, @Body() body: CreatePlaylistDto) {
+  async createAlbum(@CurrentUser() user, @Body() body: CreateAlbumDto) {
     if (!user.isVerifiedArtist) {
       throw new UnauthorizedException(
         'You do not have permission to perform this action.',
@@ -81,12 +81,21 @@ export class AlbumController {
     }
     return this.repositories.album.create({ ...body, userId: user.id });
   }
-
-  @Post('cover')
+  @Post('upload-cover/:id')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadCoverImage(@UploadedFile() file: Express.Multer.File) {
-    return this.filesService.uploadPublicFile(file.buffer, file.originalname);
+  async uploadCoverImage(
+    @CurrentUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    const album = await this.repositories.album.findById(id);
+
+    if (!album || album.userId.toString() !== user.id) {
+      throw new NotFoundException('Album does not exists');
+    }
+
+    return this.albumService.saveAlbumCover(id, file.buffer, file.originalname);
   }
 
   @Delete(':id')

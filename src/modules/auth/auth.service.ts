@@ -1,13 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repositories } from '../../models/db.repositories';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../../models/user/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +18,28 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async register(username: string, password: string): Promise<User> {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async register(email: string, username: string, password: string) {
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    return this.repositories.user.create({
-      email: username,
-      firstName: username,
-      passwordHash: hashedPassword,
+    const candidate = await this.repositories.user.findOne({
+      email: email,
     });
+
+    if (candidate) throw new BadRequestException('User with that email exists');
+
+    const user = await this.repositories.user.create({
+      email: email,
+      firstName: username,
+      artistName: username,
+      passwordHash: passwordHash,
+    });
+
+    const payload = { sub: user.id };
+
+    const token = this.generateJwt(payload);
+
+    // Return the token as the response
+    return token;
   }
 
   async login(username: string, password: string): Promise<string> {

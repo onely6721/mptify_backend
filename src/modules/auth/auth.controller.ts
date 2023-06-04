@@ -41,8 +41,14 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body: RegisterBodyDto) {
-    return this.authService.register(body.email, body.password);
+  async register(@Body() body: RegisterBodyDto, @Res() res: Response) {
+    const token = await this.authService.register(
+      body.email,
+      body.firstName,
+      body.password,
+    );
+    res.cookie('auth-token', token, { httpOnly: true, secure: true });
+    res.send(HttpStatusCode.Ok);
   }
 
   @Get('me')
@@ -61,6 +67,13 @@ export class AuthController {
     );
     res.cookie('auth-token', token, { httpOnly: true, secure: true });
     return res.redirect(this.configService.get('CLIENT_URL'));
+  }
+
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@CurrentUser() user, @Res() res: Response) {
+    res.cookie('auth-token', null, { httpOnly: true, secure: true });
+    return res.sendStatus(HttpStatusCode.Ok);
   }
 
   @Post('create-artist')
