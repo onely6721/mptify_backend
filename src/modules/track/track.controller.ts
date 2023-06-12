@@ -99,9 +99,9 @@ export class TrackController {
   ) {
     const track = await this.repositories.track.findById(id);
 
-    // if (!track || track.userId.toString() !== user.id) {
-    //   throw new NotFoundException('Track does not exists');
-    // }
+    if (!track || track.userId.toString() !== user.id) {
+      throw new NotFoundException('Track does not exists');
+    }
     return this.trackService.saveTrackAudio(id, file.buffer, file.originalname);
   }
 
@@ -141,7 +141,6 @@ export class TrackController {
   async deleteTrack(@CurrentUser() user: User, @Param('id') id: string) {
     const track = await this.repositories.track.findById(id);
 
-    console.log(track.id, user.id);
     if (!track || track.userId.toString() !== user.id.toString()) {
       throw new NotFoundException('Track does not exists');
     }
